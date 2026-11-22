@@ -6,7 +6,7 @@ const { pipeline } = require('stream');
 const PORT = +process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const HTML_GZ = path.join(__dirname, 'public', 'index.html.gz');
-const HTML = path.join(__dirname, 'public', 'index.html');
+const HTML = [path.join(__dirname, 'public', 'index.html'), path.join(__dirname, 'index.html')].find(p => fs.existsSync(p)) || path.join(__dirname, 'public', 'index.html');
 const HAS_GZ = fs.existsSync(HTML_GZ);
 const START_SALDO = 20000000;
 /* senha de ADM: so o hash fica no servidor. Pode trocar no Render com ADMIN_PASSWORD (texto) ou ADM_HASH (sha256 hex) */
@@ -55,7 +55,7 @@ const server = http.createServer((req, res) => {
   }
   /* arquivos de dados do jogo (public/d/*.gz, ja comprimidos) */
   if (/^\/d\/[\w.-]+\.gz$/.test(u)) {
-    const f = path.join(__dirname, 'public', u); let st;
+    const nm = path.basename(u), f = [path.join(__dirname, 'public', 'd', nm), path.join(__dirname, 'd', nm), path.join(__dirname, nm)].find(p => fs.existsSync(p)); let st;
     try { st = fs.statSync(f); } catch (_) { res.statusCode = 404; res.end('404'); return; }
     const etag = '"' + st.size + '-' + Math.floor(st.mtimeMs) + '"';
     if (req.headers['if-none-match'] === etag) { res.statusCode = 304; res.end(); return; }
