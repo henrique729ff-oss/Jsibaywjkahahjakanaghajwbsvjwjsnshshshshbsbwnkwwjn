@@ -1,0 +1,15 @@
+ANGRA CITY ONLINE - versao leve (como subir no Render)
+
+O QUE MUDOU
+- public/index.html agora tem so ~80 KB (antes eram 104 MB).
+- Mapa, texturas, skins e sons ficam em public/d/*.gz (23 arquivos, cada um com ~6 MB ou menos).
+- O jogo baixa esses arquivos sozinho quando abre. Nao apague a pasta public/d.
+
+COMO SUBIR
+1) Descompacte o zip. Crie um repositorio no GitHub e envie TODOS os arquivos e pastas (inclusive public/d/).
+   Pelo site do GitHub: arraste as pastas; se der erro de quantidade, envie em 2 vezes (ate 100 arquivos por vez).
+2) No Render: New > Web Service > escolha o repositorio. Runtime: Node. Build Command: echo ok. Start Command: node server.js
+3) Abra o endereco que o Render der (https://....onrender.com) em todos os celulares.
+4) ADM: no chat /key suafrase . Promover: /setadmin id . Lista: /comando
+5) Para trocar a senha: variavel ADMIN_PASSWORD no Render.
+6) Contas/bans/dinheiro ficam em DATA_DIR. Sem disco persistente (/var/data) apagam a cada deploy.

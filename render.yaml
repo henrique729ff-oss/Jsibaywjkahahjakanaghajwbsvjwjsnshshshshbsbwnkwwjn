@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: angra-city-online
+    runtime: node
+    plan: free
+    buildCommand: echo ok
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
