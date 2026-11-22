@@ -6,7 +6,19 @@ const { pipeline } = require('stream');
 const PORT = +process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const HTML_GZ = path.join(__dirname, 'public', 'index.html.gz');
-const HTML = [path.join(__dirname, 'public', 'index.html'), path.join(__dirname, 'index.html')].find(p => fs.existsSync(p)) || path.join(__dirname, 'public', 'index.html');
+/* procura index.html e os .gz de dados em qualquer pasta do projeto (ate 4 niveis) */
+const FILES = {};
+(function scan(dir, depth) {
+  let ls = []; try { ls = fs.readdirSync(dir, { withFileTypes: true }); } catch (_) { return; }
+  for (const e of ls) {
+    if (e.name === 'node_modules' || e.name === '.git' || e.name === 'data') continue;
+    const f = path.join(dir, e.name);
+    if (e.isDirectory()) { if (depth < 4) scan(f, depth + 1); }
+    else if ((e.name === 'index.html' || /\.gz$/.test(e.name)) && !FILES[e.name]) FILES[e.name] = f;
+  }
+})(__dirname, 0);
+const HTML = FILES['index.html'] || path.join(__dirname, 'public', 'index.html');
+console.log('servidor v3 | index.html:', FILES['index.html'] || 'NAO ACHADO', '| arquivos .gz:', Object.keys(FILES).filter(n => n !== 'index.html').length);
 const HAS_GZ = fs.existsSync(HTML_GZ);
 const START_SALDO = 20000000;
 /* senha de ADM: so o hash fica no servidor. Pode trocar no Render com ADMIN_PASSWORD (texto) ou ADM_HASH (sha256 hex) */
@@ -41,7 +53,7 @@ let gzFile = null;
 })();
 const server = http.createServer((req, res) => {
   const u = req.url.split('?')[0];
-  if (u === '/health') { res.end('ok'); return; }
+  if (u === '/health') { res.end('ok v3 | index=' + (FILES['index.html'] ? 'sim' : 'NAO') + ' | gz=' + (Object.keys(FILES).length - (FILES['index.html'] ? 1 : 0))); return; }
   if (u === '/' || u === '/index.html') {
     let st; try { st = fs.statSync(HAS_GZ ? HTML_GZ : HTML); } catch (_) { res.statusCode = 500; res.end('index.html nao encontrado'); return; }
     const etag = '"' + st.size + '-' + Math.floor(st.mtimeMs) + '"';
@@ -55,7 +67,7 @@ const server = http.createServer((req, res) => {
   }
   /* arquivos de dados do jogo (public/d/*.gz, ja comprimidos) */
   if (/^\/d\/[\w.-]+\.gz$/.test(u)) {
-    const nm = path.basename(u), f = [path.join(__dirname, 'public', 'd', nm), path.join(__dirname, 'd', nm), path.join(__dirname, nm)].find(p => fs.existsSync(p)); let st;
+    const nm = path.basename(u), f = FILES[nm]; let st;
     try { st = fs.statSync(f); } catch (_) { res.statusCode = 404; res.end('404'); return; }
     const etag = '"' + st.size + '-' + Math.floor(st.mtimeMs) + '"';
     if (req.headers['if-none-match'] === etag) { res.statusCode = 304; res.end(); return; }
