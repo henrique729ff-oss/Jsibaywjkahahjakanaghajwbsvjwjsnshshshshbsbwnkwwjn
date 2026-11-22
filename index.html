@@ -1,4 +1,35 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Angra City – mapa 3D completo</title>
+<!DOCTYPE html><html lang="pt-BR"><head><!-- angra-patch-v4: margem do HUD + botoes so para ADM -->
+<style id="angra-patch-v4">
+/* AJUSTE AQUI: distancia do HUD ate a borda da tela (--ex = lados, --ey = cima/baixo) */
+:root{--ex:22px;--ey:12px}
+#ghud{left:calc(env(safe-area-inset-left,0px) + var(--u)*10 + var(--ex))!important;top:calc(env(safe-area-inset-top,0px) + 70px + var(--ey))!important}
+body.gclean #ghud{top:calc(env(safe-area-inset-top,0px) + var(--u)*12 + var(--ey))!important}
+#gplay{right:calc(env(safe-area-inset-right,0px) + 12px + var(--ex))!important;top:calc(env(safe-area-inset-top,0px) + 70px + var(--ey))!important}
+#gfly{right:calc(env(safe-area-inset-right,0px) + 12px + var(--ex))!important;top:calc(env(safe-area-inset-top,0px) + 116px + var(--ey))!important}
+#gspd{right:calc(env(safe-area-inset-right,0px) + 12px + var(--ex))!important;top:calc(env(safe-area-inset-top,0px) + 162px + var(--ey))!important}
+#gjoy{left:calc(env(safe-area-inset-left,0px) + 22px + var(--ex))!important;bottom:calc(env(safe-area-inset-bottom,0px) + 26px + var(--ey))!important}
+#gbf{right:calc(env(safe-area-inset-right,0px) + 14px + var(--ex))!important;bottom:calc(env(safe-area-inset-bottom,0px) + 18px + var(--ey))!important}
+#gUD{right:calc(env(safe-area-inset-right,0px) + 20px + var(--ex))!important;bottom:calc(env(safe-area-inset-bottom,0px) + 176px + var(--ey))!important}
+#gAmmo{right:calc(env(safe-area-inset-right,0px) + 14px + var(--ex))!important;bottom:calc(env(safe-area-inset-bottom,0px) + 178px + var(--ey))!important}
+#gint{left:calc(env(safe-area-inset-left,0px) + 12px + var(--ex))!important}
+#gcbox{left:calc(env(safe-area-inset-left,0px) + 12px + var(--ex))!important;top:calc(env(safe-area-inset-top,0px) + 70px + var(--ey))!important}
+#gchb{left:calc(env(safe-area-inset-left,0px) + 12px + var(--ex))!important}
+#rlsx{left:calc(env(safe-area-inset-left,0px) + 22px + var(--ex))!important}
+#gch{left:calc(290px + var(--ex))!important;top:calc(env(safe-area-inset-top,0px) + 48px + var(--ey))!important}
+#gFS,#gClean{right:calc(env(safe-area-inset-right,0px) + 8px + var(--ex))!important}
+#gTuneBtn,#gTunePan{right:calc(env(safe-area-inset-right,0px) + 14px + var(--ex))!important}
+/* botoes que so ADM enxerga */
+html:not(.adm) #gint,html:not(.adm) #gintm,html:not(.adm) #gjob,html:not(.adm) #gmine,html:not(.adm) #gauk,html:not(.adm) #gmj{display:none!important}
+</style>
+<script>
+/* descobre se o jogador e ADM pelas mensagens do servidor (welcome.admin e role) */
+(()=>{const W=window.WebSocket,setAdm=v=>document.documentElement.classList.toggle('adm',!!v);
+window.WebSocket=function(u,p){const w=p!==undefined?new W(u,p):new W(u);
+ w.addEventListener('message',e=>{try{const m=JSON.parse(e.data);if(m.t==='welcome')setAdm(m.admin);else if(m.t==='role')setAdm(m.r)}catch(_){}});
+ w.addEventListener('close',()=>setAdm(false));return w};
+window.WebSocket.prototype=W.prototype;['CONNECTING','OPEN','CLOSING','CLOSED'].forEach((k,i)=>window.WebSocket[k]=i)})();
+</script>
+<meta charset="utf-8"><title>Angra City – mapa 3D completo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>:root{--bg:#cfe3f2;--fg:#10202c;--pn:rgba(255,255,255,.85)}@media(prefers-color-scheme:dark){:root{--bg:#0e1a24;--fg:#e8f1f8;--pn:rgba(20,32,42,.85)}}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif;overflow:hidden;touch-action:none}
